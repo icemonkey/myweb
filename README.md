@@ -10,3 +10,5 @@ git commit -m "first commit"
 git remote add origin https://github.com/icemonkey/myweb.git
 
 git push -u origin master
+
+git pull origin master
