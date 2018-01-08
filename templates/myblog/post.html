@@ -1,2 +1,14 @@
 <h2 font-color='red'> {{ quote }}</h2><p>
-<h2 font-color='red'> Total is {{ total }}</h
+<h2 font-color='red'> Total is {{ total }}</h><p>
+<h2 font-color='red'> Nowtime is :{{ now }}</h2><p>
+<h2 font-color='red'>
+<a href="#">
+{% if hour >= 18 %}
+    晚安
+{% else %}
+    早安
+{% endif %}
+
+</h2>
+</a>
+<p>
