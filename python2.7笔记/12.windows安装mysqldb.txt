@@ -1,0 +1,19 @@
+pip install wheel
+
+去这个网站查找whl格式的MYSQL-python
+
+http://www.lfd.uci.edu/~gohlke/pythonlibs/#mysql-python
+
+下载对应版本我的是
+
+    MySQL_python?1.2.5?cp27?none?win_amd64.whl
+
+在下载目录进入cmd（shift加右键），执行
+
+pip install MySQL_python?1.2.5?cp27?none?win_amd64.whl
+
+测试一下
+
+import MySQLdb
+
+大功告成

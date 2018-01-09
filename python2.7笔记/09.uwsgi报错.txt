@@ -1,0 +1,7 @@
+apt-get install python-dev
+
+ uwsgi安装：
+
+ubuntu安装uwsgi遇到的问题
+
+Command "/root/myenv/bin/python3.4 -c "import setuptools, tokenize;__file__='/tmp/pip-build-7cr2or3v/uwsgi/setup.py';exec(compile(getattr(tokenize, 'open', open)(__file__).read().replace('\r\n', '\n'), __file__, 'exec'))" install --record /tmp/pip-omoei_c8-record/install-record.txt --single-version-externally-managed --compile --install-headers /root/myenv/include/site/python3.4/uwsgi" failed with error code 1 in /tmp/pip-build-7cr2or3v/uwsgi

@@ -1,0 +1,23 @@
+vi /etc/vsftpd.conf
+
+listen=YES
+userlist_deny=NO
+userlist_enable=YES
+anonymous_enable=YES
+local_enable=YES
+userlist_file=/etc/allowed_users
+seccomp_sandbox=NO
+dirmessage_enable=YES
+use_localtime=YES
+xferlog_enable=YES
+connect_from_port_20=YES
+secure_chroot_dir=/var/run/vsftpd/empty
+pam_service_name=vsftpd
+rsa_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
+rsa_private_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
+local_root=/zq
+
+anon_world_readable_only=no
+write_enable=yes
+anon_upload_enable=yes
+anon_other_write_enable=yes

@@ -1,0 +1,76 @@
+1.settings.py
+STATIC_ROOT = '/app/programs/nginx/static'
+
+
+2.nginx.conf
+
+       location /static/ {
+            alias /app/programs/nginx/static/;
+       } 
+
+uwsgi --ini /etc/uwsgi9090.ini &
+/usr/local/nginx/sbin/nginx
+
+uwsgi配置：
+root@peter-virtual-machine:~# cat /etc/uwsgi9090.ini 
+[uwsgi]
+socket = 0.0.0.0:9090
+master = true
+vhost = true
+no-stie = true
+workers = 2
+reload-mercy = 10     
+vacuum = true
+max-requests = 1000   
+limit-as = 512
+buffer-sizi = 30000
+pidfile = /var/run/uwsgi9090.pid
+daemonize = /zq/mysite/uwsgi9090.log
+py-autoreload = 1
+
+server {
+        listen       80;
+        server_name  localhost;
+
+
+       location /static/ {
+            #alias /zq/mysite/static/;
+            alias /app/programs/nginx/static/;
+       } 
+        location / {            
+            include  uwsgi_params;
+            uwsgi_pass  0.0.0.0:9090;              #必须和uwsgi中的设置一致
+            uwsgi_param UWSGI_SCRIPT mysite.wsgi;  #入口文件，即wsgi.py相对于项目根目录的位置，“.”相当于一层目录
+            uwsgi_param UWSGI_CHDIR /zq/mysite;    #   //项目根目录
+            index  index.html index.htm;
+            client_max_body_size 35m;
+        }
+      
+    }
+
+
+
+
+
+setting.py添加
+STATIC_URL = '/static/'
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "static"),
+    '/var/www/static/',
+)
+STATIC_ROOT = "/var/www/static/"
+
+
+urls.py
+from django.conf.urls.static import static
+
+url
+patterns = [
+    url(r'^admin/', include(admin.site.urls)),
+]+static(settings.STATIC_URL, document_root = settings.STATIC_ROOT)
+
+
+
+
+
+

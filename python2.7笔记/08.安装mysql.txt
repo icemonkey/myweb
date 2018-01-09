@@ -1,0 +1,17 @@
+apt-get install mysql-client-core-5.6
+apt-get install mysql-client-5.6
+apt-get install mysql-server-5.6
+
+
+create database test default charset=utf8;
+grant all on test.* to 'test'@'192.168.137.%' identified by 'test';
+flush privileges;
+
+
+ERROR 2003 (HY000): Can't connect to MySQL server on
+vim /etc/mysql/my.cnf
+# Instead of skip-networking the default is now to listen only on
+# localhost which is more compatible and is not less secure.
+#bind-address           = 127.0.0.1  <---注释掉这一行就可以远程登录了
+
+/etc/init.d/mysql reload

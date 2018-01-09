@@ -1,0 +1,23 @@
+操作步骤
+安装ipython
+sudo apt-get install ipython
+
+安装ipython[notebook]
+终端输入以下命令：
+
+sudo apt-get install ipython-notebook
+
+启动ipython[notebook]
+终端输入以下命令：
+
+ipython notebook --ip=0.0.0.0 --port=80
+
+jupyter notebook --no-browser --ip=192.168.3.113 --port=80 --allow-root
+出错
+
+No module named notebook.notebookapp
+
+解决办法
+
+pip install jupyter
+

@@ -1,0 +1,25 @@
+PermitRootLogin 这项 将其改为 yes
+
+首先备份源列表:
+sudo cp /etc/apt/sources.list /etc/apt/sources.list_backup
+
+清空原来的/etc/apt/sources.list，添加网易的源列表
+deb http://mirrors.163.com/ubuntu/ trusty main restricted universe multiverse
+deb http://mirrors.163.com/ubuntu/ trusty-security main restricted universe multiverse
+deb http://mirrors.163.com/ubuntu/ trusty-updates main restricted universe multiverse
+deb http://mirrors.163.com/ubuntu/ trusty-proposed main restricted universe multiverse
+deb http://mirrors.163.com/ubuntu/ trusty-backports main restricted universe multiverse
+deb-src http://mirrors.163.com/ubuntu/ trusty main restricted universe multiverse
+deb-src http://mirrors.163.com/ubuntu/ trusty-security main restricted universe multiverse
+deb-src http://mirrors.163.com/ubuntu/ trusty-updates main restricted universe multiverse
+deb-src http://mirrors.163.com/ubuntu/ trusty-proposed main restricted universe multiverse
+deb-src http://mirrors.163.com/ubuntu/ trusty-backports main restricted universe multiverse
+
+刷新列表:
+sudo apt-get update 
+
+vim显示行号
+vi /etc/vim/vimrc
+set nu
+
+

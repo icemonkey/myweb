@@ -12,10 +12,10 @@ class Product(models.Model):
         ('L', 'Large'),
     )
     
-    sku = models.CharField(max_length=5)
-    name = models.CharField(max_length=20)
-    price = models.PositiveIntegerField()
-    size = models.CharField(max_length=1, choices=SIZES)
+    sku = models.CharField(max_length=5, verbose_name='sku号码')
+    name = models.CharField(max_length=20, verbose_name='名称')
+    price = models.PositiveIntegerField(verbose_name='价格')
+    size = models.CharField(max_length=1, choices=SIZES, verbose_name='尺寸')
     
     #显示数据
     #def __unicode__(self):

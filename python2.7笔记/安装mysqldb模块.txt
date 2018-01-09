@@ -1,0 +1,10 @@
+vi ~/.bash_profile
+PATH="/usr/local/mysql/bin:${PATH}"
+export PATH
+export DYLD_LIBRARY_PATH=/usr/local/mysql/lib/  
+export VERSIONER_PYTHON_PREFER_64_BIT=no  
+export VERSIONER_PYTHON_PREFER_32_BIT=yes
+
+ln -s /usr/local/mysql/lib/libmysqlclient.so.18 /usr/lib64/libmysqlclient.so.18
+
+pip install MySQL-python

@@ -1,0 +1,34 @@
+安装共分为5步搞定：　
+1.进入src目录(下载存放目录)
+     cd /usr/local/src/
+2.wget下载：http://nginx.org/en/download.html(nginx官网)
+     wget http://nginx.org/download/nginx-1.10.3.tar.gz
+3.解压
+      tar zxvf nginx-1.10.3.tar.gz
+4.进入
+      cd nginx-1.10.3
+5.设置安装目录(这样的话可能会报一些错，这里也是检测是否有问题的关键步骤)
+     ./configure --prefix=/usr/local/nginx
+6.安装
+     make && make install
+ 
+一般会出现的错误及解决方案：
+　　
+1.pcre错误
+意思就是重写需要pcre的支持，而我又没有安装pcre，可以加上–without-http_rewrite_module参数屏蔽重写功能！
+      解决办法：安装pcre
+          apt-get install libpcre3 libpcre3-dev
+ 
+2.zlib库错误
+          解决：安装zlib
+               1. apt-get install ruby 安装ruby
+               2. apt-get install zlib1g 安装zlib
+               3. apt-get install zlib1g-dev 安装zlib-dev
+ 
+3.启动错误
+意思是不能启用80端口，80端口已经被占用了。
+          解决：把占用80端口的软件 或服务关闭即可（可能是自己装了apache.nginx等，也有可能是系统自带apache并启动了）
+          1.查看端口及软件
+                    netstat -antp
+          2.杀掉进程
+                    kill -9 进程号 或 pkill apache2（httpd）

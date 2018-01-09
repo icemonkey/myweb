@@ -1,0 +1,18 @@
+pipœ¬‘ÿ	
+# wget "https://pypi.python.org/packages/source/p/pip/pip-1.5.4.tar.gz#md5=834b2904f92d46aaa333267fb1c922bb" --no-check-certificate	
+tar -xzvf pip-1.5.4.tar.gz
+cd pip-1.5.4
+python setup.py install
+
+
+vi .pip/pip.conf 
+[global]
+timeout=600
+index-url = http://pypi.douban.com/simple
+[install]
+trusted-host=pypi.douban.com
+
+
+pip install --upgrade pip
+
+ln -sv /usr/local/bin/pip /usr/bin/pip
