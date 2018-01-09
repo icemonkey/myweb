@@ -1,0 +1,385 @@
+lnmp安装
+http://blog.51cto.com/502245466/1297287
+
+
+nginx tengine-2.1.0
+mysql mysql-5.6.19-linux-glibc2.5-x86_64
+php   php-5.6.30
+
+tengine安装
+参考
+http://blog.csdn.net/xiaocao12/article/details/50424682
+
+
+yum install gcc gcc-c++ autoconf automake
+wget ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.36.tar.gz
+wget http://www.openssl.org/source/openssl-1.0.2.tar.gz
+wget http://pkgs.fedoraproject.org/lookaside/pkgs/jemalloc/jemalloc-3.6.0.tar.bz2/e76665b63a8fddf4c9f26d2fa67afdf2/jemalloc-3.6.0.tar.bz2
+wget http://zlib.net/zlib-1.2.11.tar.gz
+
+groupadd www-data
+useradd -s /sbin/nologin -g www-data www-data
+
+./config --prefix=/usr/local/nginx/openssl
+make && make install
+
+./configure --prefix=/usr/local/nginx \
+--user=www-data \
+--group=www-data \
+--with-pcre=/usr/local/nginx/pcre \
+--with-openssl=/usr/local/nginx/openssl \
+--with-jemalloc=/usr/local/nginx/jemalloc \
+--with-zlib=/usr/local/nginx/zlib \
+--with-http_ssl_module \
+--with-http_gzip_static_module \
+--with-http_realip_module \
+--with-http_stub_status_module \
+--with-http_concat_module \
+
+注意pcre、zlib、jemalloc、openssl不用安装
+
+#tengine启动脚本
+#vim /etc/rc.d/init.d/nginx
+#编辑启动文件添加下面内容
+#!/bin/bash
+# nginx Startup script for the Nginx HTTP Server
+# it is v.0.0.2 version.
+# chkconfig: - 85 15
+# description: Nginx is a high-performance web and proxy server.
+# It has a lot of features, but it's not for everyone.
+# processname: nginx
+# pidfile: /var/run/nginx.pid
+# config: /usr/local/nginx/conf/nginx.conf
+nginxd=/usr/local/nginx/sbin/nginx
+nginx_config=/usr/local/nginx/conf/nginx.conf
+nginx_pid=/usr/local/nginx/logs/nginx.pid
+RETVAL=0
+prog="nginx"
+# Source function library.
+. /etc/rc.d/init.d/functions
+# Source networking configuration.
+. /etc/sysconfig/network
+# Check that networking is up.
+[ ${NETWORKING} = "no" ] && exit 0
+[ -x $nginxd ] || exit 0
+# Start nginx daemons functions.
+start() {
+if [ -e $nginx_pid ];then
+echo "nginx already running...."
+exit 1
+fi
+echo -n $"Starting $prog: "
+daemon $nginxd -c ${nginx_config}
+RETVAL=$?
+echo
+[ $RETVAL = 0 ] && touch /var/lock/subsys/nginx
+return $RETVAL
+}
+# Stop nginx daemons functions.
+stop() {
+echo -n $"Stopping $prog: "
+killproc $nginxd
+RETVAL=$?
+echo
+[ $RETVAL = 0 ] && rm -f /var/lock/subsys/nginx /usr/local/nginx/logs/nginx.pid
+}
+reload() {
+echo -n $"Reloading $prog: "
+#kill -HUP `cat ${nginx_pid}`
+killproc $nginxd -HUP
+RETVAL=$?
+echo
+}
+# See how we were called.
+case "$1" in
+start)
+start
+;;
+stop)
+stop
+;;
+reload)
+reload
+;;
+restart)
+stop
+start
+;;
+status)
+status $prog
+RETVAL=$?
+;;
+*)
+echo $"Usage: $prog {start|stop|restart|reload|status|help}"
+exit 1
+esac
+exit $RETVAL
+
+
+
+配置文件 nginx.conf
+user  root root;
+worker_processes 4;
+worker_rlimit_nofile 65535;
+error_log  logs/error.log;
+pid        logs/nginx.pid;
+ 
+events 
+{
+   use epoll;
+   worker_connections 65535;
+}
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    index    index.html index.htm index.php;
+   server_names_hash_bucket_size 128;
+   client_header_buffer_size 320k;
+   large_client_header_buffers 4 320k;
+   client_max_body_size 200m;
+   sendfile on;
+   tcp_nopush on;
+   keepalive_timeout 60;
+   tcp_nodelay on;
+   fastcgi_connect_timeout 300;
+   fastcgi_send_timeout 300;
+   fastcgi_read_timeout 300;
+   fastcgi_buffer_size 64k;
+   fastcgi_buffers 4 64k;
+   fastcgi_busy_buffers_size 128k;
+   fastcgi_temp_file_write_size 128k;
+   gzip  on;
+   gzip_min_length  1k;
+   gzip_buffers  4 16k;
+   gzip_http_version 1.0;
+   gzip_comp_level  2;
+   gzip_types  text/plain application/xml  text/css text/xml application/x-javascript text/javascript;
+   gzip_disable  "MSIE [1-6]\.";
+   gzip_vary on;
+   log_format  proxy  '$remote_addr $upstream_addr $upstream_status [$time_local] "$request" '
+            '$status $body_bytes_sent "$http_referer" '
+            '"$http_user_agent" $http_x_forwarded_for $upstream_response_time $host';
+			   
+   log_format  mylog  '$remote_addr $upstream_addr $upstream_status [$time_local] "$request" '
+            '$status $body_bytes_sent "$http_referer" '
+            '"$http_user_agent" $http_x_forwarded_for $upstream_response_time $host $request_body';
+    server {
+        listen       80;
+        server_name  localhost;
+        location / {
+            root   html;
+            index  index.html index.htm;
+        }
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+        location ~ \.php$ {
+            root           html;
+            fastcgi_pass   127.0.0.1:9000;
+            fastcgi_index  index.php;
+            fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+            include        fastcgi_params;
+        }
+       location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$ {
+            expires      30d;
+        } 
+       location ~ .*\.(js|css)?$ {
+            expires      1h;
+        } 
+    }
+}
+
+
+
+
+mysql安装
+groupadd mysql
+useradd -s /sbin/nologin -g mysql mysql -M
+
+ln -sv mysql-5.6.19-linux-glibc2.5-x86_64 mysql
+cd mysql
+chown -R mysql:mysql .
+
+scripts/mysql_install_db --user=mysql --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data
+cp support-files/mysql.server /etc/init.d/mysqld
+chmod +x /etc/init.d/mysqld
+
+/usr/local/mysql/bin/mysqladmin -uroot password Yiwang1201
+
+看状态
+show status;
+show variables;
+配置文件：
+#/etc/my.cnf 
+# The following options will be passed to all MySQL clients
+[client]
+port		= 3306
+socket		= /tmp/mysql.sock
+
+# Here follows entries for some specific programs
+
+# The MySQL server
+[mysqld]
+character-set-server = utf8
+default-storage-engine = InnoDB
+
+port        = 3306
+socket      = /tmp/mysql.sock
+basedir     = /usr/local/mysql
+datadir     = /usr/local/mysql/data
+#general-log	= /app/programs/mysql/data/query.log
+#slow-query-log  = /app/programs/mysql/data/slowquery.log
+#long_query_time	= 3
+
+server-id	 = 1
+log-bin		 = mysql-bin
+max_binlog_size  = 1G
+#expire_logs_days = 90
+# binary logging format - mixed recommended 
+#binlog_format=mixed
+binlog_ignore_db = mysql
+binlog_ignore_db = test
+binlog_ignore_db = performance_schema
+binlog_ignore_db = information_schema
+
+skip-name-resolve
+skip-external-locking
+max_connections = 5000
+max_connect_errors = 6000
+open_files_limit = 10240
+
+thread_cache_size = 300
+query_cache_size = 512M
+query_cache_limit = 2M
+query_cache_min_res_unit = 2k
+table_open_cache = 512
+
+key_buffer_size = 256M
+join_buffer_size = 20M
+sort_buffer_size = 20M
+read_buffer_size = 20M
+read_rnd_buffer_size = 16M
+bulk_insert_buffer_size = 64M
+myisam_sort_buffer_size = 128M
+thread_concurrency = 8
+#thread_stack = 192K
+#transaction_isolation = READ-COMMITTED
+
+#skip-networking
+
+# Uncomment the following if you are using InnoDB tables
+#innodb_data_home_dir = /usr/local/mysql/var/
+#innodb_data_file_path = ibdata1:2000M;ibdata2:10M:autoextend
+#innodb_log_group_home_dir = /usr/local/mysql/var/
+# You can set .._buffer_pool_size up to 50 - 80 %
+# of RAM but beware of setting memory usage too high
+innodb_buffer_pool_size = 2048M
+innodb_additional_mem_pool_size = 20M
+# Set .._log_file_size to 25 % of buffer pool size
+innodb_log_file_size = 500M
+innodb_log_buffer_size = 8M
+#innodb_flush_log_at_trx_commit = 1
+#innodb_lock_wait_timeout = 50
+innodb_file_per_table = 1
+
+[mysqldump]
+quick
+max_allowed_packet = 16M
+
+[mysql]
+no-auto-rehash
+# Remove the next comment character if you are not familiar with SQL
+#safe-updates
+
+[myisamchk]
+key_buffer_size = 256M
+sort_buffer_size = 256M
+read_buffer = 2M
+write_buffer = 2M
+
+[mysqlhotcopy]
+interactive-timeout
+
+
+
+
+
+
+
+yum -y install gd gd2 gd-devel gd2-devel gcc gcc-c++ autoconf bison flex re2c libmhash libjpeg libjpeg-devel libpng libpng-devel freetype freetype-devel libxml2 libxml2-devel zlib zlib-devel glibc glibc-devel glib2 glib2-devel bzip2 bzip2-devel ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel openldap openldap-devel nss_ldap openldap-clients openldap-servers
+
+php安装
+wget http://am1.php.net/distributions/php-7.0.9.tar.gz
+
+错误：
+configure: error: Cannot find ldap libraries in /usr/lib.
+cp /usr/lib64/libldap* /usr/lib/
+
+安装mcrypt和mhash路径默认
+cp -r /usr/local/lib/libmhash.* /usr/lib/
+cp /usr/local/lib/libmcrypt* /usr/lib/
+echo /usr/local/lib >>/etc/ld.so.conf
+
+ ./configure --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc \
+ --with-mysql=mysqlnd --with-mysqli=mysqlnd --with-pdo-mysql=mysqlnd \
+ --with-iconv --with-freetype-dir --with-jpeg-dir --with-png-dir --with-zlib \
+ --enable-xml --disable-rpath --enable-bcmath --enable-shmop --enable-sysvsem \
+ --enable-inline-optimization --with-curl  --enable-mbregex --enable-fpm --enable-mbstring \
+ --with-mcrypt --with-mhash \
+ --with-gd --enable-gd-native-ttf --with-openssl \
+ --enable-pcntl --enable-sockets --with-ldap --with-ldap-sasl \
+ --with-xmlrpc --enable-zip --enable-soap \
+ 
+ 进入源码目录
+ cp sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm
+ chmod +x /etc/init.d/php-fpm
+ 
+ cp php.ini-production /usr/local/php/etc/php.ini
+ 
+ cd /usr/loca/php/etc
+ cp php-fpm.conf.default php-fpm.conf
+
+编辑fpm文件
+vi php-fpm.conf
+[global]
+pid = run/php-fpm.pid
+error_log = /tmp/php-fpm_error.log
+log_level = error
+ 
+ 
+events.mechanism = epoll
+[www]
+user = www
+group = www
+;listen = /tmp/php-cgi.sock
+listen = 127.0.0.1:9000
+ 
+pm = dynamic
+pm.max_children = 512
+pm.start_servers = 128
+pm.min_spare_servers = 128
+pm.max_spare_servers = 512
+ 
+pm.max_requests = 15000
+pm.status_path = /status
+ 
+ 
+slowlog = var/log/$pool.log.slow
+ 
+request_slowlog_timeout = 5s
+ 
+request_terminate_timeout = 120s
+
+catch_workers_output = yes
+ 
+
+ 测试页面
+ echo "<?php phpinfo(); ?>" >> /usr/local/nginx/html/test.php
+ 
+
+ 
+ 
+ 
+ 
+

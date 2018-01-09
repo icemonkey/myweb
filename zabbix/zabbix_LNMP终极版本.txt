@@ -1,0 +1,65 @@
+/etc/zabbix/zabbix_agentd.conf.d/checkmysql.conf 
+#####mysql parameter
+UserParameter=mysql.version,mysql -V
+UserParameter=mysql.ping,mysqladmin --login-path=client ping | grep -c alive
+UserParameter=mysql.status[*],/etc/zabbix/chekscripts/checkmysql.sh $1 $2
+UserParameter=mysql.uptime,mysqladmin --login-path=clien status|cut -f2 -d":"|cut -f1 -d"T"
+
+#####nginx parameter
+UserParameter=nginx.accepts,/etc/zabbix/chekscripts/checknginx.sh accepts  
+UserParameter=nginx.handled,/etc/zabbix/chekscripts/checknginx.sh handled  
+UserParameter=nginx.requests,/etc/zabbix/chekscripts/checknginx.sh requests  
+UserParameter=nginx.connections.active,/etc/zabbix/chekscripts/checknginx.sh active  
+UserParameter=nginx.connections.reading,/etc/zabbix/chekscripts/checknginx.sh reading  
+UserParameter=nginx.connections.writing,/etc/zabbix/chekscripts/checknginx.sh writing  
+UserParameter=nginx.connections.waiting,/etc/zabbix/chekscripts/checknginx.sh waiting
+
+######php parameter
+UserParameter=php.idle.processe,/etc/zabbix/chekscripts/checkphp.sh idle
+UserParameter=php.total.processes,/etc/zabbix/chekscripts/checkphp.sh total
+UserParameter=php.active.processes,/etc/zabbix/chekscripts/checkphp.sh active
+UserParameter=php.max.active.processes,/etc/zabbix/chekscripts/checkphp.sh mactive
+UserParameter=php.listen.queue.len,/etc/zabbix/chekscripts/checkphp.sh listenqueuelen
+UserParameter=php.listen.queue,/etc/zabbix/chekscripts/checkphp.sh listenqueue
+UserParameter=php.start.since,/etc/zabbix/chekscripts/checkphp.sh since
+UserParameter=php.accepted.conn,/etc/zabbix/chekscripts/checkphp.sh conn
+
+
+服务器配置
+zabbix_server.conf
+
+DBHost=10.20.100.203
+DBName=zabbix
+DBUser=zabbix
+DBPassword=zabbix
+StartPollers=30
+StartTrappers=20
+StartPingers=10
+StartDiscoverers=120            
+MaxHousekeeperDelete=5000
+CacheSize=1024M
+StartDBSyncers=8
+HistoryCacheSize=1024M          
+TrendCacheSize=128M
+AlertScriptsPath=/etc/zabbix/alertscripts
+LogSlowQueries=1000
+LogFile=/tmp/zabbix_server.log
+
+代理端配置
+zabbix_agentd.conf
+
+LogFile=/tmp/zabbix_agentd.log
+#Server可以不填，可能导致服务器发现不了agant端
+Server=10.20.100.203
+ServerActive=10.20.100.203
+Hostname=yw203
+Include=/etc/zabbix/zabbix_agentd.conf.d/*.conf
+UnsafeUserParameters=1
+
+
+
+
+
+
+
+
