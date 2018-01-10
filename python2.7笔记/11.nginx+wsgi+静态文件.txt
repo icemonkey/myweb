@@ -62,6 +62,7 @@ STATIC_ROOT = "/var/www/static/"
 
 
 urls.py
+import settings
 from django.conf.urls.static import static
 
 url
