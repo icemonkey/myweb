@@ -1,24 +1,18 @@
-pip install pyreadline
+#python Tab
+import sys   
+import readline   
+import rlcompleter   
+import atexit   
+import os    
+readline.parse_and_bind('tab: complete')   
+# windows
+histfile = os.path.join(os.environ['HOMEPATH'], '.pythonhistory')   
+# linux
+# histfile = os.path.join(os.environ['HOME'], '.pythonhistory')   
+try:   
+    readline.read_history_file(histfile)   
+except IOError:   
+    pass   
+atexit.register(readline.write_history_file, histfile)   
 
-
-import rlcompleter, readline  
-readline.parse_and_bind('tab: complete')
-
-
-root@peter-virtual-machine:/usr/lib/python2.7/dist-packages# cat tab.py
-import rlcompleter
-import readline
-import atexit
-import os
-# http://stackoverflow.com/questions/7116038/python-tab-completion-mac-osx-10-7-lion
-if'libedit'in readline.__doc__:
-    readline.parse_and_bind('bind ^I rl_complete')
-else:
-    readline.parse_and_bind('tab: complete')
-    histfile = os.path.join(os.environ['HOME'],'.pyhist')
-try:
-    readline.read_history_file(histfile)
-except IOError:
-    pass
-    atexit.register(readline.write_history_file, histfile)
-    del readline, rlcompleter, histfile, os
+del os, histfile, readline, rlcompleter  
