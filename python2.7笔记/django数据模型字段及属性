@@ -13,7 +13,7 @@ DateField
 ([auto_now], [auto_now_add])  日期字段
 
 DateTimeField    时间日期字段,接受跟 DateField 一样的额外选项
-(timezone.now)
+([auto_now_add=True]创建时间，[auto_now=True]更新时间, )
 
 EmailField       一个能检查值是否是有效的电子邮件地址的 CharField 
 
