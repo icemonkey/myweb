@@ -1,5 +1,6 @@
-$ pip freeze > requirements.txt
+pip freeze > requirements.txt
+å¯¼å‡ºå·²å®‰è£…çš„åŒ…åˆ—è¡¨ï¼Œç„¶åä½¿ç”¨
 
-µ¼³öÒÑ°²×°µÄ°üÁĞ±í£¬È»ºóÊ¹ÓÃ
-
+å®‰è£…åŒ…
 pip install -r requirements.txt
+
